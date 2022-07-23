@@ -180,8 +180,16 @@ function isInsideCircle(circle, point) {
  *   'abracadabra'  => 'c'
  *   'entente' => null
  */
-function findFirstSingleChar(/* str */) {
-  throw new Error('Not implemented');
+function findFirstSingleChar(str) {
+  const letters = {};
+  [...str].forEach((e) => {
+    if (letters[e] === undefined) {
+      letters[e] = 0;
+    }
+    letters[e] += 1;
+  });
+  const res = [...str].filter((e) => letters[e] === undefined || letters[e] === 1);
+  return res.length > 0 ? res[0] : null;
 }
 
 
@@ -207,8 +215,16 @@ function findFirstSingleChar(/* str */) {
  *   5, 3, true, true   => '[3, 5]'
  *
  */
-function getIntervalString(/* a, b, isStartIncluded, isEndIncluded */) {
-  throw new Error('Not implemented');
+function getIntervalString(a, b, isStartIncluded, isEndIncluded) {
+  let start = a;
+  let end = b;
+  if (a > b) {
+    start = b;
+    end = a;
+  }
+  const startBracket = isStartIncluded ? '[' : '(';
+  const endBracket = isEndIncluded ? ']' : ')';
+  return `${startBracket}${start}, ${end}${endBracket}`;
 }
 
 
@@ -284,8 +300,21 @@ function isCreditCardNumber(/* ccn */) {
  *   10000 ( 1+0+0+0+0 = 1 ) => 1
  *   165536 (1+6+5+5+3+6 = 26,  2+6 = 8) => 8
  */
-function getDigitalRoot(/* num */) {
-  throw new Error('Not implemented');
+function getDigitalRoot(num) {
+  if (num < 9) {
+    return num;
+  }
+  function getSum(number) {
+    let sum = 0;
+    let value = number;
+    while (value > 0) {
+      sum += value % 10;
+      value = Math.floor(value / 10);
+    }
+    return sum;
+  }
+  const res = getSum(num);
+  return getSum(res);
 }
 
 
@@ -310,8 +339,25 @@ function getDigitalRoot(/* num */) {
  *   '{)' = false
  *   '{[(<{[]}>)]}' = true
  */
-function isBracketsBalanced(/* str */) {
-  throw new Error('Not implemented');
+function isBracketsBalanced(str) {
+  const config = {
+    '[': ']',
+    '(': ')',
+    '{': '}',
+    '<': '>',
+  };
+
+  const stack = [];
+  [...str].forEach((e) => {
+    stack.push(e);
+    if (stack.length > 1) {
+      if (config[stack[stack.length - 2]] === stack[stack.length - 1]) {
+        stack.splice(stack.length - 2, 2);
+      }
+    }
+  });
+
+  return stack.length === 0;
 }
 
 
@@ -335,8 +381,8 @@ function isBracketsBalanced(/* str */) {
  *    365, 4  => '11231'
  *    365, 10 => '365'
  */
-function toNaryString(/* num, n */) {
-  throw new Error('Not implemented');
+function toNaryString(num, n) {
+  return num.toString(n);
 }
 
 
