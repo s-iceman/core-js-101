@@ -118,33 +118,92 @@ function fromJSON(proto, json) {
  *  For more examples see unit tests.
  */
 
+const eOnce = new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+
+const eOrder = new Error(
+  'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element',
+);
+
+class SelectorBuilder {
+  constructor() {
+    this.repr = '';
+    this.counts = [0, 0, 0, 0, 0, 0];
+  }
+
+  update(value, prefix, postfix, i, requireOnce = false) {
+    if (this.counts.find((x, j) => j < i && x === 0)) {
+      throw eOrder;
+    }
+    if (this.counts.find((x, j) => j > i && x !== 0)) {
+      throw eOrder;
+    }
+    if (requireOnce && this.counts[i] >= 1) {
+      throw eOnce;
+    }
+    this.counts[i] += 1;
+    this.repr += `${prefix}${value}${postfix}`;
+    return this;
+  }
+
+  element(value) {
+    return this.update(value, '', '', 0, true);
+  }
+
+  id(value) {
+    return this.update(value, '#', '', 1, true);
+  }
+
+  class(value) {
+    return this.update(value, '.', '', 2);
+  }
+
+  attr(value) {
+    return this.update(value, '[', ']', 3);
+  }
+
+  pseudoClass(value) {
+    return this.update(value, ':', '', 4);
+  }
+
+  pseudoElement(value) {
+    return this.update(value, '::', '', 5, true);
+  }
+
+  stringify() {
+    return this.repr;
+  }
+
+  withRepr(repr) {
+    this.repr = repr;
+    return this;
+  }
+
+  static combine(s1, c, s2) {
+    return new SelectorBuilder().withRepr(`${s1.stringify()} ${c} ${s2.stringify()}`);
+  }
+}
+
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    return new SelectorBuilder().element(value);
   },
-
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    return new SelectorBuilder().id(value);
   },
-
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    return new SelectorBuilder().class(value);
   },
-
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    return new SelectorBuilder().attr(value);
   },
-
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    return new SelectorBuilder().pseudoClass(value);
   },
-
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    return new SelectorBuilder().pseudoElement(value);
   },
-
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  combine(s1, c, s2) {
+    return SelectorBuilder.combine(s1, c, s2);
   },
 };
 

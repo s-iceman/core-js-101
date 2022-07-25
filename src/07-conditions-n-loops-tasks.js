@@ -133,8 +133,11 @@ function isTriangle(a, b, c) {
  *   { top:20, left:20, width: 20, height: 20 }    =>  false
  *
  */
-function doRectanglesOverlap(/* rect1, rect2 */) {
-  throw new Error('Not implemented');
+function doRectanglesOverlap(rect1, rect2) {
+  const vertMatch = (u, v) => u.top >= v.top && u.top <= v.top + v.height;
+  const horMatch = (u, v) => u.left >= v.left && u.left <= v.left + v.width;
+  return (vertMatch(rect1, rect2) || vertMatch(rect2, rect1))
+    && (horMatch(rect1, rect2) || horMatch(rect2, rect1));
 }
 
 
@@ -282,8 +285,14 @@ function reverseInteger(num) {
  *   5436468789016589 => false
  *   4916123456789012 => false
  */
-function isCreditCardNumber(/* ccn */) {
-  throw new Error('Not implemented');
+function isCreditCardNumber(ccn) {
+  const digits = ccn.toString().split('').map((x) => parseInt(x, 10));
+  const lastDigit = digits.pop();
+  const checksum = digits.reverse()
+    .map((x, i) => x * 2 ** ((i + 1) % 2))
+    .map((x) => (x % 10) + (x >= 10))
+    .reduce((sum, e) => sum + e, 0) % 10;
+  return lastDigit === (checksum ? 10 - checksum : 0);
 }
 
 /**
@@ -437,8 +446,11 @@ function getCommonDirectoryPath(pathes) {
  *                         [ 6 ]]
  *
  */
-function getMatrixProduct(/* m1, m2 */) {
-  throw new Error('Not implemented');
+function getMatrixProduct(m1, m2) {
+  const range = (x) => [...Array(x).keys()];
+  const sum = (arr) => arr.reduce((a, b) => a + b, 0);
+  const rowByCol = (i, j) => sum(range(m1[0].length).map((k) => m1[i][k] * m2[k][j]));
+  return range(m1.length).map((i) => range(m2[0].length).map((j) => rowByCol(i, j)));
 }
 
 
@@ -472,8 +484,14 @@ function getMatrixProduct(/* m1, m2 */) {
  *    [    ,   ,    ]]
  *
  */
-function evaluateTicTacToePosition(/* position */) {
-  throw new Error('Not implemented');
+function evaluateTicTacToePosition(position) {
+  const winningSeries = [
+    ...position,
+    ...position[0].map((x, j) => position.map((row) => row[j])),
+    position.map((row, i) => row[i]),
+    position.map((row, i) => row[row.length - i - 1]),
+  ].filter((s) => s.length === 3 && s[0] && s.every((x) => x === s[0]))[0];
+  return winningSeries ? winningSeries[0] : undefined;
 }
 
 
